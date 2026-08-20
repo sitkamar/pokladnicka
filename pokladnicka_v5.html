@@ -413,54 +413,7 @@
 </div>
 
 <script>
-    const taskPool = [
-        { id: 101, cat: "Síla a zdraví", title: "Vypít sklenici vody", reward: 1 },
-        { id: 102, cat: "Síla a zdraví", title: "Ujít 1 000 kroků", reward: 1 },
-        { id: 103, cat: "Síla a zdraví", title: "Udělat 10 dřepů", reward: 1 },
-        { id: 104, cat: "Síla a zdraví", title: "Udělat 5 kliků", reward: 1 },
-        { id: 105, cat: "Síla a zdraví", title: "1 minuta planku", reward: 1 },
-        { id: 106, cat: "Síla a zdraví", title: "Zdravější varianta jídla", reward: 1 },
-        { id: 107, cat: "Síla a zdraví", title: "Vynechat sladkost", reward: 1 },
-        { id: 108, cat: "Síla a zdraví", title: "Sníst porci zeleniny navíc", reward: 1 },
-        { id: 109, cat: "Síla a zdraví", title: "Jít po schodech místo výtahu", reward: 1 },
-        { id: 110, cat: "Síla a zdraví", title: "15 minut svižné chůze", reward: 2 },
-        { id: 111, cat: "Síla a zdraví", title: "Jít spát v 23:00", reward: 2 },
-        { id: 112, cat: "Síla a zdraví", title: "10 minut meditace", reward: 2 },
-        { id: 113, cat: "Síla a zdraví", title: "30 minut procházky", reward: 3 },
-        { id: 114, cat: "Síla a zdraví", title: "Ujít 3 000 kroků", reward: 3 },
-        { id: 115, cat: "Síla a zdraví", title: "Jít spát ve 22:30", reward: 5 },
-        { id: 116, cat: "Síla a zdraví", title: "Ujít 5 000 kroků", reward: 5 },
-        { id: 117, cat: "Síla a zdraví", title: "30 minut cvičení", reward: 10 },
-        
-        { id: 201, cat: "Vztahy", title: "Napsat milou zprávu", reward: 1 },
-        { id: 202, cat: "Vztahy", title: "Upřímně někoho pochválit", reward: 1 },
-        { id: 203, cat: "Vztahy", title: "Poděkovat kolegovi", reward: 1 },
-        { id: 204, cat: "Vztahy", title: "Zavolat rodičům nebo rodině", reward: 2 },
-        { id: 205, cat: "Vztahy", title: "Aktivně vyslechnout", reward: 2 },
-        { id: 206, cat: "Vztahy", title: "Položit hlubší otázku", reward: 1 },
-        { id: 207, cat: "Vztahy", title: "Pozvat někoho na kávu", reward: 3 },
-        { id: 208, cat: "Vztahy", title: "Naplánovat společnou aktivitu", reward: 3 },
-        { id: 209, cat: "Vztahy", title: "Přinést drobnou pozornost", reward: 3 },
-        { id: 210, cat: "Vztahy", title: "Pomoci někomu s problémem", reward: 4 },
-        { id: 211, cat: "Vztahy", title: "Vyjít s I (večeře/kino)", reward: 5 },
-        { id: 212, cat: "Vztahy", title: "Mentorovat kolegu/známého", reward: 5 },
-        { id: 213, cat: "Vztahy", title: "Rodinná návštěva/akce", reward: 5 },
-        { id: 214, cat: "Vztahy", title: "Uspořádat setkání s přáteli", reward: 5 },
-        
-        { id: 301, cat: "Moudrost a bohatství", title: "Přečíst 10 stran knihy", reward: 1 },
-        { id: 302, cat: "Moudrost a bohatství", title: "Poslechnout investiční podcast", reward: 3 },
-        { id: 303, cat: "Moudrost a bohatství", title: "Reflexe do deníku", reward: 2 },
-        { id: 304, cat: "Moudrost a bohatství", title: "Naplánovat následující den", reward: 2 },
-        { id: 305, cat: "Moudrost a bohatství", title: "Dokončit odkládaný úkol", reward: 3 },
-        { id: 306, cat: "Moudrost a bohatství", title: "25 min soustředěné práce", reward: 3 },
-        { id: 307, cat: "Moudrost a bohatství", title: "Projít investiční watchlist", reward: 3 },
-        { id: 308, cat: "Moudrost a bohatství", title: "Poznámky do invest. deníku", reward: 3 },
-        { id: 309, cat: "Moudrost a bohatství", title: "Prostudovat jednu společnost", reward: 5 },
-        { id: 310, cat: "Moudrost a bohatství", title: "Porovnat dvě inv. příležitosti", reward: 5 },
-        { id: 311, cat: "Moudrost a bohatství", title: "Hodina hluboké práce na projektu", reward: 8 },
-        { id: 312, cat: "Moudrost a bohatství", title: "Napsat článek nebo delší text", reward: 8 },
-        { id: 313, cat: "Moudrost a bohatství", title: "Aktualizace strategie/cílů", reward: 10 }
-    ];
+    let taskPool = [];
 
     const svgCoin1 = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#fbbf24" stroke="#d97706" stroke-width="4"/><circle cx="50" cy="50" r="28" fill="none" stroke="#d97706" stroke-width="2"/></svg>`;
     const svgCoinStack = `<svg viewBox="0 0 100 100" width="100%" height="100%"><ellipse cx="50" cy="75" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="70" rx="35" ry="15" fill="#fbbf24" /><ellipse cx="50" cy="55" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="50" rx="35" ry="15" fill="#fbbf24" /><ellipse cx="50" cy="35" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="30" rx="35" ry="15" fill="#fbbf24" /></svg>`;
@@ -482,6 +435,46 @@
     };
 
     const STORAGE_KEY = 'sovi_pokladnicka_v3';
+
+// ASYNCHRONNÍ NAČTENÍ CSV
+    async function initApp() {
+        try {
+            const response = await fetch('tasks.csv');
+            if (!response.ok) throw new Error('Nelze načíst CSV soubor');
+            
+            const csvText = await response.text();
+            parseCSV(csvText);
+            
+            // Až když jsou úkoly načtené, spustíme zbytek aplikace
+            loadState();
+        } catch (error) {
+            console.error("Chyba při načítání tasks.csv:", error);
+            alert("Nepodařilo se načíst úkoly ze souboru tasks.csv. Zkontroluj, zda soubor existuje a je dostupný.");
+        }
+    }
+
+    // PARSOVÁNÍ CSV
+    function parseCSV(text) {
+        taskPool = [];
+        const lines = text.split('\n');
+        
+        // Začínáme od indexu 1, abychom přeskočili hlavičku
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue; // Přeskočení prázdných řádků
+            
+            // Oddělujeme pomocí středníku
+            const parts = line.split(';');
+            if (parts.length >= 4) {
+                taskPool.push({
+                    id: parseInt(parts[0].trim(), 10),
+                    cat: parts[1].trim(),
+                    title: parts[2].trim(),
+                    reward: parseInt(parts[3].trim(), 10)
+                });
+            }
+        }
+    }
 
 function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
