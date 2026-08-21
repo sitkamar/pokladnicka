@@ -1,0 +1,48 @@
+id;cat;title;reward
+
+101;Síla a zdraví;Vypít sklenici vody;1
+102;Síla a zdraví;Ujít 1 000 kroků;1
+103;Síla a zdraví;Udělat 10 dřepů;1
+104;Síla a zdraví;Udělat 5 kliků;1
+105;Síla a zdraví;1 minuta planku;1
+106;Síla a zdraví;Zdravější varianta jídla;1
+107;Síla a zdraví;Vynechat sladkost;1
+108;Síla a zdraví;Sníst porci zeleniny navíc;1
+109;Síla a zdraví;Jít po schodech místo výtahu;1
+110;Síla a zdraví;15 minut svižné chůze;2
+111;Síla a zdraví;Jít spát v 23:00;2
+112;Síla a zdraví;10 minut meditace;2
+113;Síla a zdraví;30 minut procházky;3
+114;Síla a zdraví;Ujít 3 000 kroků;3
+115;Síla a zdraví;Jít spát ve 22:30;5
+116;Síla a zdraví;Ujít 5 000 kroků;5
+117;Síla a zdraví;30 minut cvičení;10
+
+201;Vztahy;Napsat milou zprávu;1
+202;Vztahy;Upřímně někoho pochválit;1
+203;Vztahy;Poděkovat kolegovi;1
+204;Vztahy;Zavolat rodičům nebo rodině;2
+205;Vztahy;Aktivně vyslechnout;2
+206;Vztahy;Položit hlubší otázku;1
+207;Vztahy;Pozvat někoho na kávu;3
+208;Vztahy;Naplánovat společnou aktivitu;3
+209;Vztahy;Přinést drobnou pozornost;3
+210;Vztahy;Pomoci někomu s problémem;4
+211;Vztahy;Vyjít si (večeře/kino);5
+212;Vztahy;Mentorovat kolegu/známého;5
+213;Vztahy;Rodinná návštěva/akce;5
+214;Vztahy;Uspořádat setkání s přáteli;5
+
+301;Moudrost a bohatství;Přečíst 10 stran knihy;1
+302;Moudrost a bohatství;Poslechnout investiční podcast;3
+303;Moudrost a bohatství;Reflexe do deníku;2
+304;Moudrost a bohatství;Naplánovat následující den;2
+305;Moudrost a bohatství;Dokončit odkládaný úkol;3
+306;Moudrost a bohatství;25 min soustředěné práce;3
+307;Moudrost a bohatství;Projít investiční watchlist;3
+308;Moudrost a bohatství;Poznámky do invest. deníku;3
+309;Moudrost a bohatství;Prostudovat jednu společnost;5
+310;Moudrost a bohatství;Porovnat dvě inv. příležitosti;5
+311;Moudrost a bohatství;Hodina hluboké práce na projektu;8
+312;Moudrost a bohatství;Napsat článek nebo delší text;8
+313;Moudrost a bohatství;Aktualizace strategie/cílů;10

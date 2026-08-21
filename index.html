@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pokladnička Sovička</title>
-    
+    <link rel="icon" type="image/svg+xml" href="favicon2.svg">
     <!-- PWA / Mobile web app podpora -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -135,7 +135,6 @@
             background-color: #fafafa;
         }
 
-        /* Stav Urgentního úkolu */
         .task-card.urgent:not(.completed) {
             border: 2px solid var(--urgent-orange);
             background-color: var(--urgent-bg);
@@ -154,7 +153,6 @@
             width: max-content;
         }
 
-        /* Stav splněného úkolu */
         .task-card.completed {
             border-color: var(--completed-green);
             background-color: var(--completed-bg);
@@ -211,7 +209,6 @@
             height: 24px;
         }
 
-        /* FÁZE 6: Volné pole / Vlastní transakce */
         .custom-task-section {
             background: var(--surface-color);
             border-radius: var(--radius);
@@ -266,7 +263,6 @@
 
         .custom-task-btn:hover { opacity: 0.9; }
 
-        /* Controls (Generování & Reroll) */
         .controls-section {
             display: flex;
             flex-direction: column;
@@ -313,7 +309,6 @@
             transform: scale(0.98);
         }
 
-        /* Sekce Logování (Historie) */
         .log-section {
             background: var(--surface-color);
             border-radius: var(--radius);
@@ -356,22 +351,30 @@
             font-size: 0.8rem;
             text-decoration: underline;
         }
-
     </style>
 </head>
 <body>
+
+<!-- PŘIHLAŠOVACÍ OBRAZOVKA -->
+<div id="auth-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--surface-color); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 400px; text-align: center;">
+        <h2 style="margin-bottom: 20px;">Přihlášení</h2>
+        <input type="email" id="auth-email" placeholder="E-mail" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <input type="password" id="auth-pass" placeholder="Heslo" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        
+        <button class="primary-btn" onclick="login()" style="margin-bottom: 10px; width: 100%;">Přihlásit se</button>
+        <button class="secondary-btn" onclick="register()" style="width: 100%;">Nová registrace</button>
+    </div>
+</div>
 
 <div class="container">
     <div class="treasury">
         <h1>Moje Pokladnička</h1>
         <div class="coin-counter" id="main-counter">
             <span id="total-coins">0</span>
-            <!-- ZLAŤÁK S JEDNODUCHOU SOVIČKOU (JEDNA LINKA) -->
             <svg class="main-coin" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="45" fill="#fbbf24" stroke="#d97706" stroke-width="4"/>
                 <circle cx="50" cy="50" r="35" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="4,4"/>
-                
-                <!-- Čistý obrys malé sovy bez rušivých detailů -->
                 <path d="M 36 62 C 30 40, 70 40, 64 62 C 64 70, 36 70, 36 62 Z 
                          M 38 43 L 37 34 L 45 39 
                          M 62 43 L 63 34 L 55 39" 
@@ -385,7 +388,7 @@
         <!-- Generováno přes JS -->
     </div>
 
-    <!-- FÁZE 6: Volné pole / Mimořádná transakce -->
+    <!-- Volné pole -->
     <div class="custom-task-section">
         <div class="category-header">Volná akce / Výběr zlaťáků</div>
         <div class="custom-task-form">
@@ -395,72 +398,86 @@
         </div>
     </div>
 
-    <!-- Ovládání (Nový den & FÁZE 4: Reroll) -->
+    <!-- Ovládání -->
     <div class="controls-section">
-        <button class="primary-btn" onclick="generateNewDay()">Zahájit nový den</button>
         <button class="secondary-btn" id="reroll-btn" onclick="rerollUrgent()">🎲 Přelosovat urgenci (1 🪙)</button>
+        <button class="text-btn" onclick="logout()" style="margin-top: 15px;">Odhlásit se</button>
     </div>
 
     <!-- Historie -->
     <div class="log-section">
         <div class="log-header">
             <h3>Historie pokladničky (Log)</h3>
-            <button class="text-btn" onclick="clearData()">[Smazat data]</button>
         </div>
         <ul class="log-list" id="activity-log"></ul>
     </div>
-
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const taskPool = [
-        { id: 101, cat: "Síla a zdraví", title: "Vypít sklenici vody", reward: 1 },
-        { id: 102, cat: "Síla a zdraví", title: "Ujít 1 000 kroků", reward: 1 },
-        { id: 103, cat: "Síla a zdraví", title: "Udělat 10 dřepů", reward: 1 },
-        { id: 104, cat: "Síla a zdraví", title: "Udělat 5 kliků", reward: 1 },
-        { id: 105, cat: "Síla a zdraví", title: "1 minuta planku", reward: 1 },
-        { id: 106, cat: "Síla a zdraví", title: "Zdravější varianta jídla", reward: 1 },
-        { id: 107, cat: "Síla a zdraví", title: "Vynechat sladkost", reward: 1 },
-        { id: 108, cat: "Síla a zdraví", title: "Sníst porci zeleniny navíc", reward: 1 },
-        { id: 109, cat: "Síla a zdraví", title: "Jít po schodech místo výtahu", reward: 1 },
-        { id: 110, cat: "Síla a zdraví", title: "15 minut svižné chůze", reward: 2 },
-        { id: 111, cat: "Síla a zdraví", title: "Jít spát v 23:00", reward: 2 },
-        { id: 112, cat: "Síla a zdraví", title: "10 minut meditace", reward: 2 },
-        { id: 113, cat: "Síla a zdraví", title: "30 minut procházky", reward: 3 },
-        { id: 114, cat: "Síla a zdraví", title: "Ujít 3 000 kroků", reward: 3 },
-        { id: 115, cat: "Síla a zdraví", title: "Jít spát ve 22:30", reward: 5 },
-        { id: 116, cat: "Síla a zdraví", title: "Ujít 5 000 kroků", reward: 5 },
-        { id: 117, cat: "Síla a zdraví", title: "30 minut cvičení", reward: 10 },
-        
-        { id: 201, cat: "Vztahy", title: "Napsat milou zprávu", reward: 1 },
-        { id: 202, cat: "Vztahy", title: "Upřímně někoho pochválit", reward: 1 },
-        { id: 203, cat: "Vztahy", title: "Poděkovat kolegovi", reward: 1 },
-        { id: 204, cat: "Vztahy", title: "Zavolat rodičům nebo rodině", reward: 2 },
-        { id: 205, cat: "Vztahy", title: "Aktivně vyslechnout", reward: 2 },
-        { id: 206, cat: "Vztahy", title: "Položit hlubší otázku", reward: 1 },
-        { id: 207, cat: "Vztahy", title: "Pozvat někoho na kávu", reward: 3 },
-        { id: 208, cat: "Vztahy", title: "Naplánovat společnou aktivitu", reward: 3 },
-        { id: 209, cat: "Vztahy", title: "Přinést drobnou pozornost", reward: 3 },
-        { id: 210, cat: "Vztahy", title: "Pomoci někomu s problémem", reward: 4 },
-        { id: 211, cat: "Vztahy", title: "Vyjít s I (večeře/kino)", reward: 5 },
-        { id: 212, cat: "Vztahy", title: "Mentorovat kolegu/známého", reward: 5 },
-        { id: 213, cat: "Vztahy", title: "Rodinná návštěva/akce", reward: 5 },
-        { id: 214, cat: "Vztahy", title: "Uspořádat setkání s přáteli", reward: 5 },
-        
-        { id: 301, cat: "Moudrost a bohatství", title: "Přečíst 10 stran knihy", reward: 1 },
-        { id: 302, cat: "Moudrost a bohatství", title: "Poslechnout investiční podcast", reward: 3 },
-        { id: 303, cat: "Moudrost a bohatství", title: "Reflexe do deníku", reward: 2 },
-        { id: 304, cat: "Moudrost a bohatství", title: "Naplánovat následující den", reward: 2 },
-        { id: 305, cat: "Moudrost a bohatství", title: "Dokončit odkládaný úkol", reward: 3 },
-        { id: 306, cat: "Moudrost a bohatství", title: "25 min soustředěné práce", reward: 3 },
-        { id: 307, cat: "Moudrost a bohatství", title: "Projít investiční watchlist", reward: 3 },
-        { id: 308, cat: "Moudrost a bohatství", title: "Poznámky do invest. deníku", reward: 3 },
-        { id: 309, cat: "Moudrost a bohatství", title: "Prostudovat jednu společnost", reward: 5 },
-        { id: 310, cat: "Moudrost a bohatství", title: "Porovnat dvě inv. příležitosti", reward: 5 },
-        { id: 311, cat: "Moudrost a bohatství", title: "Hodina hluboké práce na projektu", reward: 8 },
-        { id: 312, cat: "Moudrost a bohatství", title: "Napsat článek nebo delší text", reward: 8 },
-        { id: 313, cat: "Moudrost a bohatství", title: "Aktualizace strategie/cílů", reward: 10 }
-    ];
+    // ZDE DOPLŇ SVÉ ÚDAJE ZE SUPABASE
+    const supabaseUrl = 'https://sntolcwdfwfervcogcyw.supabase.co';
+    const supabaseKey = 'sb_publishable_V4dGwYnz22pATdjlnJ2SMQ_KyB-xALF';
+    
+    // ZMĚNA: Přejmenováno na supabaseClient, aby to nekolidovalo
+    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    let currentUser = null;
+    let taskPool = []; 
+
+    // AUTENTIZACE
+    async function initAuth() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        handleSession(session);
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            handleSession(session);
+        });
+    }
+
+    function handleSession(session) {
+        const authScreen = document.getElementById('auth-screen');
+        if (session) {
+            currentUser = session.user;
+            authScreen.style.display = 'none';
+            initApp(); 
+        } else {
+            currentUser = null;
+            authScreen.style.display = 'flex';
+        }
+    }
+
+    async function login() {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-pass').value;
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) alert("Chyba přihlášení: " + error.message);
+    }
+
+    async function register() {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-pass').value;
+        const { error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) {
+            alert("Chyba registrace: " + error.message);
+        } else {
+            alert("Registrace úspěšná! Nyní jsi přihlášen.");
+        }
+    }
+
+    async function logout() {
+        await supabaseClient.auth.signOut();
+        window.location.reload(); 
+    }
+
+    // APLIKAČNÍ STAV A FUNKCE
+    let state = {
+        totalCoins: 0,
+        logs: [],
+        todayTasks: [],
+        rerollUsedToday: false,
+        lastDate: ""
+    };
 
     const svgCoin1 = `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#fbbf24" stroke="#d97706" stroke-width="4"/><circle cx="50" cy="50" r="28" fill="none" stroke="#d97706" stroke-width="2"/></svg>`;
     const svgCoinStack = `<svg viewBox="0 0 100 100" width="100%" height="100%"><ellipse cx="50" cy="75" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="70" rx="35" ry="15" fill="#fbbf24" /><ellipse cx="50" cy="55" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="50" rx="35" ry="15" fill="#fbbf24" /><ellipse cx="50" cy="35" rx="35" ry="15" fill="#d97706" /><ellipse cx="50" cy="30" rx="35" ry="15" fill="#fbbf24" /></svg>`;
@@ -473,68 +490,98 @@
         return svgCoinPile;
     }
 
-    // APLIKAČNÍ STAV
-    let state = {
-        totalCoins: 0,
-        logs: [],
-        todayTasks: [],
-        rerollUsedToday: false
-    };
-
-    const STORAGE_KEY = 'sovi_pokladnicka_v3';
-
-function loadState() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        state = JSON.parse(saved);
-    }
-    
-    // Pokud dnešní úkoly chybí (první spuštění nebo prázdný stav), automaticky vygeneruje nový den bez ptaní
-    if (!state.todayTasks || state.todayTasks.length === 0) {
-        generateNewDay(true);
-    } else {
-        renderApp();
-    }
-}
-
-    function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    // FÁZE 5: Zvukový efekt cinknutí
-    function playCoinSound() {
+    async function initApp() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(987.77, ctx.currentTime); // B5
-            osc.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.08); // E6
-
-            gain.gain.setValueAtTime(0.3, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start();
-            osc.stop(ctx.currentTime + 0.25);
-        } catch (e) {
-            // Audio není podporováno nebo je blokováno prohlížečem
+            const response = await fetch('tasks.csv');
+            if (!response.ok) throw new Error('Nelze načíst CSV soubor');
+            const csvText = await response.text();
+            parseCSV(csvText);
+            await loadState();
+        } catch (error) {
+            console.error("Chyba při načítání tasks.csv:", error);
+            alert("Nepodařilo se načíst úkoly ze souboru tasks.csv.");
         }
     }
 
-    // GENERÁTOR DNŮ
-    function generateNewDay(isInitial = false) {
-        if (!isInitial && state.todayTasks.length > 0) {
-            if (!confirm("Opravdu chceš zahájit nový den? Všechny dnešní NESPLNĚNÉ úkoly zmizí a vygenerují se nové.")) {
-                return;
+    function parseCSV(text) {
+        taskPool = [];
+        const lines = text.split('\n');
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = line.split(';');
+            if (parts.length >= 4) {
+                taskPool.push({
+                    id: parseInt(parts[0].trim(), 10),
+                    cat: parts[1].trim(),
+                    title: parts[2].trim(),
+                    reward: parseInt(parts[3].trim(), 10)
+                });
             }
         }
+    }
 
+    async function loadState() {
+        if (!currentUser) return;
+        try {
+            const { data, error } = await supabaseClient
+                .from('app_state')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+
+            if (data) {
+                state.totalCoins = data.total_coins;
+                state.logs = data.logs || [];
+                state.todayTasks = data.today_tasks || [];
+                state.rerollUsedToday = data.reroll_used_today;
+                state.lastDate = data.last_date || ""; // Načtení data
+            } else {
+                await supabaseClient.from('app_state').insert({ user_id: currentUser.id });
+            }
+        } catch (err) {
+            console.error("Chyba načítání dat:", err);
+        }
+        
+        // ZJIŠTĚNÍ, ZDA JE NOVÝ DEN
+        const todayStr = new Date().toLocaleDateString('cs-CZ');
+        // Pokud se datum neshoduje s dneškem, automaticky vygenerujeme nové
+        if (state.lastDate !== todayStr) {
+            generateNewDay();
+        } else if (!state.todayTasks || state.todayTasks.length === 0) {
+            generateNewDay();
+        } else {
+            renderApp();
+        }
+    }
+
+    async function saveState() {
+        if (!currentUser) return;
+        const { error } = await supabaseClient
+            .from('app_state')
+            .update({
+                total_coins: state.totalCoins,
+                logs: state.logs,
+                today_tasks: state.todayTasks,
+                reroll_used_today: state.rerollUsedToday,
+                last_date: state.lastDate // Uložení data
+            })
+            .eq('user_id', currentUser.id);
+
+        if (error) console.error("Chyba při ukládání:", error);
+    }
+
+    // ... (zde nech playCoinSound tak, jak je) ...
+
+    function generateNewDay() {
+        // Nastavíme dnešní datum
+        const todayStr = new Date().toLocaleDateString('cs-CZ');
+        state.lastDate = todayStr;
+        
         state.todayTasks = [];
-        state.rerollUsedToday = false; // Reset denního rerollu
+        state.rerollUsedToday = false;
         
         const categories = ["Síla a zdraví", "Vztahy", "Moudrost a bohatství"];
         
@@ -542,7 +589,6 @@ function loadState() {
             const filtered = taskPool.filter(t => t.cat === catName);
             const shuffled = filtered.sort(() => 0.5 - Math.random());
             const selected = shuffled.slice(0, 5);
-            
             selected.forEach(t => {
                 state.todayTasks.push({ id: t.id, completed: false, isUrgent: false });
             });
@@ -557,116 +603,81 @@ function loadState() {
         renderApp();
     }
 
-    // FÁZE 4: REROLL URGENTNÍHO ÚKOLU
+    function playCoinSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987.77, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        } catch (e) {}
+    }
+
     function rerollUrgent() {
         const uncompletedTasks = state.todayTasks.filter(t => !t.completed);
-        
-        if (state.rerollUsedToday) {
-            alert("Reroll už byl dnes použit!");
-            return;
-        }
-        if (state.totalCoins < 1) {
-            alert("Na reroll potřebuješ alespoň 1 zlaťák!");
-            return;
-        }
-        if (uncompletedTasks.length < 2) {
-            alert("Pro reroll potřebuješ alespoň 2 otevřené úkoly.");
-            return;
-        }
+        if (state.rerollUsedToday) { alert("Reroll už byl dnes použit!"); return; }
+        if (state.totalCoins < 1) { alert("Na reroll potřebuješ alespoň 1 zlaťák!"); return; }
+        if (uncompletedTasks.length < 2) { alert("Pro reroll potřebuješ alespoň 2 otevřené úkoly."); return; }
 
-        // Strhnout zlaťák
         state.totalCoins -= 1;
         state.rerollUsedToday = true;
 
-        // Odebrat urgenci ze starého
         const currentUrgent = state.todayTasks.find(t => t.isUrgent && !t.completed);
-        if (currentUrgent) {
-            currentUrgent.isUrgent = false;
-        }
+        if (currentUrgent) currentUrgent.isUrgent = false;
 
-        // Vybrat nový náhodný
         const eligibleNewTasks = state.todayTasks.filter(t => !t.completed && t !== currentUrgent);
         const randomPick = eligibleNewTasks[Math.floor(Math.random() * eligibleNewTasks.length)];
         randomPick.isUrgent = true;
 
-        // Log Rerollu
-        state.logs.unshift({
-            id: Date.now(),
-            timestamp: new Date().toISOString(),
-            catName: "Systém",
-            title: "🎲 Reroll urgence",
-            reward: -1
-        });
-
+        state.logs.unshift({ id: Date.now(), timestamp: new Date().toISOString(), catName: "Systém", title: "🎲 Reroll urgence", reward: -1 });
         saveState();
         renderApp();
         pulseCounter();
     }
 
-    // SPLNĚNÍ BĚŽNÉHO ÚKOLU
     function completeTask(taskId) {
         const taskState = state.todayTasks.find(t => t.id === taskId);
         if (!taskState || taskState.completed) return;
-
         const fullData = taskPool.find(t => t.id === taskId);
-        const finalReward = taskState.isUrgent ? (fullData.reward * 2) : fullData.reward;
+        if (!fullData) return;
 
+        const finalReward = taskState.isUrgent ? (fullData.reward * 2) : fullData.reward;
         taskState.completed = true;
         state.totalCoins += finalReward;
 
-        const now = new Date();
-        state.logs.unshift({
-            id: now.getTime(),
-            timestamp: now.toISOString(),
-            catName: fullData.cat,
-            title: taskState.isUrgent ? `🔥 ${fullData.title}` : fullData.title,
-            reward: finalReward
-        });
-
+        state.logs.unshift({ id: new Date().getTime(), timestamp: new Date().toISOString(), catName: fullData.cat, title: taskState.isUrgent ? `🔥 ${fullData.title}` : fullData.title, reward: finalReward });
         saveState();
         renderApp();
         pulseCounter();
         playCoinSound();
     }
 
-    // FÁZE 6: VYKONÁNÍ VOLNÉHO ÚKOLU / TRANSAKCE
     function executeCustomTask() {
         const titleInput = document.getElementById("custom-title");
         const rewardInput = document.getElementById("custom-reward");
-
         const title = titleInput.value.trim();
         const reward = parseInt(rewardInput.value, 10);
 
-        if (!title) {
-            alert("Zadej prosím popis akce.");
-            return;
-        }
-        if (isNaN(reward) || reward === 0) {
-            alert("Zadej platný počet zlaťáků (např. 10 nebo -50).");
-            return;
-        }
+        if (!title) { alert("Zadej prosím popis akce."); return; }
+        if (isNaN(reward) || reward === 0) { alert("Zadej platný počet zlaťáků (např. 10 nebo -50)."); return; }
 
         state.totalCoins += reward;
-
-        const now = new Date();
-        state.logs.unshift({
-            id: now.getTime(),
-            timestamp: now.toISOString(),
-            catName: "Volná akce",
-            title: title,
-            reward: reward
-        });
-
+        state.logs.unshift({ id: new Date().getTime(), timestamp: new Date().toISOString(), catName: "Volná akce", title: title, reward: reward });
         titleInput.value = "";
         rewardInput.value = "";
-
         saveState();
         renderApp();
         pulseCounter();
         if (reward > 0) playCoinSound();
     }
 
-    // VYKRESLENÍ APLIKACE
     const appContainer = document.getElementById("app-content");
     const counterSpan = document.getElementById("total-coins");
     const logList = document.getElementById("activity-log");
@@ -674,39 +685,28 @@ function loadState() {
 
     function renderApp() {
         counterSpan.innerText = state.totalCoins;
-
-        // Stav Reroll tlačítka
         const openTasksCount = state.todayTasks.filter(t => !t.completed).length;
         const canReroll = !state.rerollUsedToday && state.totalCoins >= 1 && openTasksCount >= 2;
         rerollBtn.disabled = !canReroll;
-        rerollBtn.innerText = state.rerollUsedToday 
-            ? "🎲 Přelosováno (zítra znovu)" 
-            : "🎲 Přelosovat urgenci (1 🪙)";
+        rerollBtn.innerText = state.rerollUsedToday ? "🎲 Přelosováno (zítra znovu)" : "🎲 Přelosovat urgenci (1 🪙)";
 
-        // Logy
         logList.innerHTML = "";
         state.logs.slice(0, 50).forEach(entry => {
             const date = new Date(entry.timestamp);
             const formattedTime = date.toLocaleDateString('cs-CZ') + ' ' + date.toLocaleTimeString('cs-CZ', {hour: '2-digit', minute:'2-digit'});
-            
             const sign = entry.reward >= 0 ? "+" : "";
             const li = document.createElement("li");
             li.className = "log-item";
-            li.innerHTML = `
-                <span>${formattedTime} - ${entry.title} (${entry.catName})</span>
-                <strong>${sign}${entry.reward} Z</strong>
-            `;
+            li.innerHTML = `<span>${formattedTime} - ${entry.title} (${entry.catName})</span><strong>${sign}${entry.reward} Z</strong>`;
             logList.appendChild(li);
         });
 
-        // Sloupce s úkoly
         appContainer.innerHTML = "";
         const categoriesNames = ["Síla a zdraví", "Vztahy", "Moudrost a bohatství"];
 
         categoriesNames.forEach(catName => {
             const col = document.createElement("div");
             col.className = "category-column";
-            
             const header = document.createElement("div");
             header.className = "category-header";
             header.innerText = catName;
@@ -724,32 +724,21 @@ function loadState() {
             
             tasksForTodayInCat.forEach(task => {
                 const taskDiv = document.createElement("div");
-                
                 let classNames = "task-card";
                 if (task.completed) classNames += " completed";
                 if (task.isUrgent) classNames += " urgent";
                 taskDiv.className = classNames;
-                
-                if (!task.completed) {
-                    taskDiv.onclick = () => completeTask(task.id);
-                }
+                if (!task.completed) taskDiv.onclick = () => completeTask(task.id);
 
                 const displayReward = task.isUrgent ? (task.reward * 2) : task.reward;
                 const urgentBadgeHTML = task.isUrgent ? `<span class="urgent-badge">🔥 URGENTNÍ (2x)</span>` : '';
 
                 taskDiv.innerHTML = `
-                    <div class="task-info">
-                        ${urgentBadgeHTML}
-                        <div class="task-title">${task.title}</div>
-                    </div>
-                    <div class="task-reward">
-                        <span>+${displayReward}</span>
-                        <div class="reward-icon">${getCoinIcon(displayReward)}</div>
-                    </div>
+                    <div class="task-info">${urgentBadgeHTML}<div class="task-title">${task.title}</div></div>
+                    <div class="task-reward"><span>+${displayReward}</span><div class="reward-icon">${getCoinIcon(displayReward)}</div></div>
                 `;
                 col.appendChild(taskDiv);
             });
-
             appContainer.appendChild(col);
         });
     }
@@ -760,14 +749,8 @@ function loadState() {
         setTimeout(() => cnt.classList.remove('pulse'), 150);
     }
 
-    function clearData() {
-        if(confirm("Opravdu smazat celou pokladničku a logy?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-    }
-
-    loadState();
+    // SPUSŤ PO NAČTENÍ STRÁNKY
+    initAuth();
 </script>
 
 </body>
